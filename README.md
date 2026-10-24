@@ -23,6 +23,7 @@ Currently this loader is specific for the following list of games:
 16. Tonari ni Kanojo no Iru Shiawase Winter Guest (CUSA11977)
 17. Mikagami Sumika no Seifuku Katsudou (CUSA11481)
 18. Aerial Life (CUSA17122)
+19. Tonari ni Kanojo no Iru Shiawase Two Farce (CUSA09825)
 
 For guide on how to setup this loader, please refer [SETUP.md](SETUP.md)
 
@@ -39,5 +40,7 @@ This repo provides few [payloads](payloads/) for you to play around. PRs for use
 * specter & chendo - for webkit implementations which i refer a lot
 * al-azif - parts and information grabbed from his sdk, aswell as from his ftp server
 * horror - for the notification popup and ftp server payloads
+* ufm42 - for kexp
+* maj0r - for the log screen implementation
 * everyone else who shared their knowledge with the community
 
