@@ -35,6 +35,11 @@ function print(...)
 
     log_fd:write(out) -- print to file
     log_fd:flush()
+
+    -- misc.lua is loaded after this function is defined
+    if log_screen then
+        log_screen.add(out)
+    end
 end
 
 package.path = package.path .. ";/savedata0/?.lua"
@@ -65,6 +70,7 @@ function run_lua_code(lua_code)
     if err then
         local err_msg = "error loading script: " .. err
         syscall.write(client_fd, err_msg, #err_msg)
+        log_screen.add(err_msg)
         return
     end
 
@@ -72,10 +78,12 @@ function run_lua_code(lua_code)
         print = function(...)
             local out = prepare_arguments(...) .. "\n"
             syscall.write(client_fd, out, #out)
+            log_screen.add(out)
         end,
         printf = function(fmt, ...)
             local out = string.format(fmt, ...) .. "\n"
             syscall.write(client_fd, out, #out)
+            log_screen.add(out)
         end
     }
 
@@ -83,10 +91,12 @@ function run_lua_code(lua_code)
     setfenv(script, env)
 
     err = run_with_coroutine(script)
+    log_screen.drain_threads()
 
     -- pass error to client
     if err then
         syscall.write(client_fd, err, #err)
+        log_screen.add(err)
     end
 end
 
@@ -138,8 +148,8 @@ function remote_lua_loader(port)
         network_str = string.format("port %d", port)
     end
 
-    notify(string.format("remote lua loader\nrunning on %s %s\nlistening on %s",
-        PLATFORM, FW_VERSION, network_str))
+    printf("[+] remote lua loader running on %s %s", PLATFORM, FW_VERSION)
+    printf("[+] listening on %s", network_str)
 
     while true do
 
@@ -204,6 +214,10 @@ function remote_lua_loader(port)
             end
             
             local lua_code = memory.read_buffer(buf, size)
+
+            -- send_lua.py tags the file name on the last line, other clients just get a generic name.
+            local payload_name = lua_code:match("\n%-%- payload: ([^\n]+)$")
+            printf("[+] %s received...", payload_name or "payload")
 
             -- printf("[+] accepted lua code with size %d (%s)", #lua_code, hex(#lua_code))
             
@@ -319,7 +333,7 @@ function main()
         run_loader() -- less stable but doesnt exhaust memory
     end
 
-    notify("finished")
+    print("[+] finished")
 
     sleep(10000000)
 end
@@ -327,7 +341,6 @@ end
 function entry()
     local err = run_with_coroutine(main)
     if err then
-        notify(err)
         print(err)
     end
 end

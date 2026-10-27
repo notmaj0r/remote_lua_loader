@@ -195,6 +195,13 @@ function run_lua_code_in_new_thread(lua_code, opt)
             if client_fd then
                 syscall.write(client_fd, out, #out)
             end
+
+            -- the engine only lives in the main thread, so leave the text for it to draw.
+            local len = memory.read_qword(log_buf):tonumber()
+            if len + #out <= 0xff0 then
+                memory.write_buffer(log_buf + 8 + len, out)
+                memory.write_qword(log_buf, len + #out)
+            end
         end
 
         function _run_payload()
@@ -234,6 +241,7 @@ function run_lua_code_in_new_thread(lua_code, opt)
         native_pivot_handler_rop = native.pivot_handler_rop,
         args = opt.args,
         client_fd = opt.client_fd,
+        log_buf = log_screen.thread_buffer(),
         _lua_code = lua_code,
     }
 
@@ -274,6 +282,7 @@ function run_lua_code_in_new_thread(lua_code, opt)
     local thr = thread:new(eboot_addrofs.lua_pcall, L, 0, LUA_MULTRET, 0)
     
     thr:run(opt.async)
+    log_screen.drain_threads()
 
     return thr
 end

@@ -83,6 +83,7 @@ gadget_table = {
             fake_string = 0x600164, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x1a7bb0, -- to resolve eboot base
             strerror_import = 0x619440, -- to resolve libc base
+            engine_draw = 0x23bc50, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x1a5590,
             luaL_checklstring = 0x1a5180,
@@ -168,6 +169,7 @@ gadget_table = {
             fake_string = 0x600164, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x1aeb90, -- to resolve eboot base
             strerror_import = 0x6194A0, -- to resolve libc base
+            engine_draw = 0x259800, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x1ac580,
             luaL_checklstring = 0x1ac170,
@@ -256,6 +258,7 @@ gadget_table = {
             fake_string = 0x600164, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x1ad170, -- to resolve eboot base
             strerror_import = 0x619218, -- to resolve libc base
+            engine_draw = 0x240880, -- renders one frame, used by the log screen
             
             luaL_optinteger = 0x1aaba0,
             luaL_checklstring = 0x1aa790,
@@ -345,6 +348,7 @@ gadget_table = {
             fake_string = 0x600164, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x1a7420, -- to resolve eboot base
             strerror_import = 0x616978, -- to resolve libc base
+            engine_draw = 0x238820, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x1a4d80,
             luaL_checklstring = 0x1a4970,
@@ -431,6 +435,7 @@ gadget_table = {
             fake_string = 0x600164, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x1a75d0, -- to resolve eboot base
             strerror_import = 0x619440, -- to resolve libc base
+            engine_draw = 0x23aae0, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x1a4fb0,
             luaL_checklstring = 0x1a4ba0,
@@ -518,6 +523,7 @@ gadget_table = {
             fake_string = 0x4b0164, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x195280, -- to resolve eboot base
             strerror_import = 0x4CB040, -- to resolve libc base
+            engine_draw = 0x22fad0, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x192cc0,
             luaL_checklstring = 0x1928b0,
@@ -604,6 +610,7 @@ gadget_table = {
             fake_string = 0x4d8164, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x19f600, -- to resolve eboot base
             strerror_import = 0x4F3B78, -- to resolve libc base
+            engine_draw = 0x247860, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x19d010,
             luaL_checklstring = 0x19cc00,
@@ -690,6 +697,7 @@ gadget_table = {
             fake_string = 0x600164, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x1aed80, -- to resolve eboot base
             strerror_import = 0x6194A0, -- to resolve libc base
+            engine_draw = 0x259ab0, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x1ac770,
             luaL_checklstring = 0x1ac360,
@@ -784,6 +792,7 @@ gadget_table = {
             fake_string = 0x4D8164, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x1A0660, -- to resolve eboot base
             strerror_import = 0x4F3D20, -- to resolve libc base
+            engine_draw = 0x249120, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x19E040,
             luaL_checklstring = 0x19DC30,
@@ -878,6 +887,7 @@ gadget_table = {
             fake_string = 0x600164, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x1BBB10, -- to resolve eboot base
             strerror_import = 0x61B0C0, -- to resolve libc base
+            engine_draw = 0x24c6d0, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x1B94B0,
             luaL_checklstring = 0x1B90A0,
@@ -966,7 +976,8 @@ gadget_table = {
             fake_string = 0x600184, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x1bd410, -- to resolve eboot base
             strerror_import = 0x61C700, -- to resolve libc base
-            
+            engine_draw = 0x24f380, -- renders one frame, used by the log screen
+
             luaL_optinteger = 0x1bad80,
             luaL_checklstring = 0x1ba970,
             lua_pushlstring = 0x1b8aa0,
@@ -1059,6 +1070,7 @@ gadget_table = {
             fake_string = 0x4D8164, -- SCE_RELRO segment, use ptr as size for fake string
             luaB_auxwrap = 0x1A12E0, -- to resolve eboot base
             strerror_import = 0x4F3D60, -- to resolve libc base
+            engine_draw = 0x24b240, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x19ECC0,
             luaL_checklstring = 0x19E8B0,
@@ -1172,6 +1184,7 @@ gadget_table = {
             fake_string = 0x4D8164,
             luaB_auxwrap = 0x1a1070,
             strerror_import = 0x4f3d40,
+            engine_draw = 0x249bc0, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x19ea50,
             luaL_checklstring = 0x19e640,
@@ -1263,6 +1276,7 @@ gadget_table = {
             fake_string = 0x4d4164,
             luaB_auxwrap = 0x19a560,
             strerror_import = 0x4ef7a0,
+            engine_draw = 0x242020, -- renders one frame, used by the log screen
 
             luaL_optinteger = 0x197f70,
             luaL_checklstring = 0x197b60,

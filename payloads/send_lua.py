@@ -1,3 +1,4 @@
+import os
 import sys
 import select
 import socket
@@ -58,8 +59,11 @@ def send_command(ip, port, command):
 def send_payload(ip, port, filepath):
     with open(filepath, "rb") as file:
         data = file.read()
-    
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:        
+
+    # name goes on the last line so the lua error line numbers do not shift
+    data += b"\n-- payload: " + os.path.basename(filepath).encode()
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((ip, port))
         
         # Send size (qword) + <buffer..>

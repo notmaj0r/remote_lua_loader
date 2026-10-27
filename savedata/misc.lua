@@ -7,8 +7,136 @@ function printf(fmt, ...)
     print(string.format(fmt, ...))
 end
 
-function notify(s)
-    e:tag{"dialog", title="", message=s}
+log_screen = {
+    bg_id = "998",
+    text_id = "999",
+    max_lines = 30,
+    lines = {},
+    ready = false,
+}
+
+-- font files differ per game, so pick one from the pfs index
+function log_screen.find_font()
+    local f = assert(io.open("/app0/root.pfs", "rb"))
+
+    local head = f:read(7)
+    assert(head:sub(1, 3) == "pf8", "not a pf8 archive")
+
+    local b1, b2, b3, b4 = head:byte(4, 7)
+    local index = f:read(b1 + b2 * 0x100 + b3 * 0x10000 + b4 * 0x1000000)
+    f:close()
+
+    local fonts = {}
+    for name in index:gmatch("[%w_%-%./\\ ]+%.[ot]tf") do
+        table.insert(fonts, (name:gsub("\\", "/")))
+    end
+
+    -- regular first, then medium, anything else is better than no glyphs
+    for _, key in ipairs({ "regular", "medium" }) do
+        for _, face in ipairs(fonts) do
+            if face:lower():find(key, 1, true) then
+                return face
+            end
+        end
+    end
+    return fonts[1]
+end
+
+function log_screen.init()
+    -- set first so a failed init is not retried on every line
+    log_screen.ready = true
+
+    local ok, face = pcall(log_screen.find_font)
+    if not ok or not face then
+        face = "image/font/VL-Gothic-Regular.ttf"
+    end
+
+    e:tag{"var", name="t.log_w", system="screen_width"}
+    e:tag{"var", name="t.log_h", system="screen_height"}
+    local w = tonumber(e:var("t.log_w"))
+    local h = tonumber(e:var("t.log_h"))
+
+    e:tag{"lyc", id=log_screen.bg_id, width=w, height=h, color="ff000000"}
+    e:tag{"chgmsg", id=log_screen.text_id, layered=1}
+    -- same attributes the game sets for its own text layers, face is required to get glyphs.
+    e:tag{"font", face=face, left=32, top=32, width=w - 64, height=h - 64,
+        size=28, align="left", style="outline", color="0xffffff", outlinecolor="0x000000",
+        hung="0", rubysize="0", stack="0"}
+    e:tag{"/chgmsg"}
+end
+
+function log_screen.find_app()
+    if not log_screen.app then
+        -- e (userdata +0x28) -> luabind holder (+0x18) -> clua (+0x38) -> app
+        local holder = memory.read_qword(lua.addrof(e) + 0x28)
+        local clua = memory.read_qword(holder + 0x18)
+        log_screen.app = memory.read_qword(clua + 0x38)
+    end
+    return log_screen.app
+end
+
+function log_screen.draw()
+    if not log_screen.ready then
+        log_screen.init()
+    end
+
+    e:tag{"chgmsg", id=log_screen.text_id, layered=1}
+    e:tag{"rp"}
+    for _, line in ipairs(log_screen.lines) do
+        e:tag{"print", data=line}
+        e:tag{"rt"}
+    end
+    e:tag{"/chgmsg"}
+
+    -- layer changes only show after a flip tag.
+    e:tag{"flip"}
+
+    -- the loader blocks the engine loop, so render the frame by hand (two passes for the double buffer).
+    if native_invoke and eboot_addrofs.engine_draw then
+        local app = log_screen.find_app()
+        for _ = 1, 2 do
+            native.fcall(eboot_addrofs.engine_draw, app)
+        end
+    end
+end
+
+-- layout is a qword length followed by the text. threads append, the main thread drains it.
+function log_screen.thread_buffer()
+    if not log_screen.thread_buf then
+        log_screen.thread_buf = memory.alloc(0x1000)
+        memory.write_qword(log_screen.thread_buf, 0)
+    end
+    return log_screen.thread_buf
+end
+
+function log_screen.drain_threads()
+    local buf = log_screen.thread_buf
+    if not buf then
+        return
+    end
+
+    local len = memory.read_qword(buf):tonumber()
+    if len > 0 then
+        local text = memory.read_buffer(buf + 8, len)
+        memory.write_qword(buf, 0)
+        log_screen.add(text)
+    end
+end
+
+function log_screen.add(s)
+    for line in (s:gsub("\n$", "") .. "\n"):gmatch("(.-)\n") do
+        table.insert(log_screen.lines, line)
+    end
+    while #log_screen.lines > log_screen.max_lines do
+        table.remove(log_screen.lines, 1)
+    end
+
+    -- a drawing failure must never break the loader, keep it in the log file instead.
+    local ok, err = pcall(log_screen.draw)
+    if not ok and log_fd then
+        log_fd:write("log_screen error: " .. tostring(err) .. "\n")
+        log_fd:flush()
+    end
 end
 
 function error(s)
